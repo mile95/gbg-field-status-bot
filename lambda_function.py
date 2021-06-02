@@ -64,16 +64,8 @@ def tweet_statuses(closed_fields):
     API.update_status(tweet_text)
 
 
-def get_closed_fields(statuses) -> List:
-    closed = []
-    for field, status in statuses.items():
-        if status == "RED":
-            closed.append(field)
-    return closed
-
-
 def lambda_handler(event, context):
     statuses = collect_statuses_from_webpage()
-    closed_fields = get_closed_fields(statuses)
+    closed_fields = [field for field, status in statuses.items() if status == "RED"]
     tweet_statuses(closed_fields)
     return {"statusCode": 200, "body": json.dumps({"Message ": "Tweet Tweeted!"})}

@@ -4,7 +4,7 @@ https://twitter.com/gbgplanstatus
 
 - Twitter bot that tweets unavailable football pitches in the Gothenburg area.
 - Deployed as an AWS Lambda
-- Tweets updates daily at 10am, 12am and 15am (GMT +2)
+- Tweets updates daily at 10am, 12am and 3pm (GMT +2)
 
 ## Deployment instructions
 
