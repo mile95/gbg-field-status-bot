@@ -1,0 +1,9 @@
+name: Deploy Lambda To Aws
+on: [push]
+jobs:
+  Package Lambda Function:
+    runs-on: ubuntu-latest
+    steps:
+      - run: pip install -r requirements.txt -t .
+      - run: zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
+      - run: ls -la
