@@ -1,7 +1,7 @@
 name: Deploy Lambda To Aws
 on: [push]
 jobs:
-  Package-Lambda-Function:
+  Package-And-Deploy-Lambda-Function:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository content
@@ -12,4 +12,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
-          ls -la
+      - name: Deploy Lambda Function
+        uses: hashicorp/setup-terraform@v1
+      
+      - run: terraform init
+
+      - id: plan
+        run: terraform plan -var 'AWS_ACCESS_KEY=${{secret.AWS_ACCESS_KEY}}' -var 'AWS_SECRET_KEY=${{secret.AWS_SECRET_KEY}} -var 'TWITTER_ACCESS_TOKEN=${{secret.TWITTER_ACCESS_TOKEN}}' -var 'TWITTER_ACCESS_TOKEN_SECRET=${{secret.TWITTER_ACCESS_TOKEN_SECRET}}' -var "TWITTER_CONSUMER_API_KEY=${{secret.TWITTER_CONSUMER_API_KEY}}" -var 'TWITTER_CONSUMER_API_SECRET=${{secret.TWITTER_CONSUMER_API_SECRET}}'
+
+      - run: echo ${{ steps.plan.outputs.stdout }}
+      - run: echo ${{ steps.plan.outputs.stderr }}
+      - run: echo ${{ steps.plan.outputs.exitcode }}
+
+
