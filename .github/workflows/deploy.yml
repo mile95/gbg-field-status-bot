@@ -2,7 +2,7 @@ name: Deploy Lambda To Aws
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   Package-And-Deploy-Lambda-Function:
     runs-on: ubuntu-latest
