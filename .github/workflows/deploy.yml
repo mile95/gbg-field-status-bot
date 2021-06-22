@@ -15,10 +15,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
-      - name: Deploy Lambda Function
-        uses: hashicorp/setup-terraform@v1
-      
-      name: Apply terraform plan
 
       - name: terraform apply
         uses: dflook/terraform-apply@v1
