@@ -11,11 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      
+      - run: ls -la
 
       - name: terraform plan
         uses: dflook/terraform-plan@v1
         with:
-          path: configuration
+          path: terraform
           label: My Label
           variables: |
             AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}}
