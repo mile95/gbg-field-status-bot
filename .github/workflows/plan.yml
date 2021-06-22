@@ -22,7 +22,7 @@ jobs:
         uses: dflook/terraform-plan@v1
         with:
           path: .
-          label: My Label
+          label: Twitter Bot
           variables: |
             AWS_ACCESS_KEY="${{secrets.AWS_ACCESS_KEY}}"
             AWS_SECRET_KEY="${{secrets.AWS_SECRET_KEY}}"
