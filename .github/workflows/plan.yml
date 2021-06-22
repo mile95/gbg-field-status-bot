@@ -32,15 +32,17 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terraform plan -var AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} -var AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} -var TWITTER_ACCESS_TOKEN=${{secrets.TWITTER_ACCESS_TOKEN}} -var TWITTER_ACCESS_TOKEN_SECRET=${{secrets.TWITTER_ACCESS_TOKEN_SECRET}} -var TWITTER_CONSUMER_API_KEY=${{secrets.TWITTER_CONSUMER_API_KEY}} -var TWITTER_CONSUMER_API_SECRET=${{secrets.TWITTER_CONSUMER_API_SECRET}} -no-color
-        continue-on-error: false
+        continue-on-error: true
 
       - uses: actions/github-script@0.9.0
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         with:
           script: |
             const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
             #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
             #### Terraform Validation 🤖\`${{ steps.validate.outputs.stdout }}\`
-            #### Terraform Plan 📖\`${{ Object.values(steps.plan) }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcom }}\`
             
             <details><summary>Show Plan</summary>
             
