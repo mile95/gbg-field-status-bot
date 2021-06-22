@@ -2,7 +2,7 @@ name: Terraform Plan
 on: 
   pull_request:
     branches: 
-      - master
+      - main
 jobs:
   Package-And-Deploy-Lambda-Function:
     runs-on: ubuntu-latest
@@ -15,22 +15,48 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
-      - name: Terraform
-        uses: hashicorp/setup-terraform@v1
       
-      - run: terraform init
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        continue-on-error: true
 
-      - id: plan
-        run: terraform plan -var AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} -var AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} -var TWITTER_ACCESS_TOKEN=${{secrets.TWITTER_ACCESS_TOKEN}} -var TWITTER_ACCESS_TOKEN_SECRET=${{secrets.TWITTER_ACCESS_TOKEN_SECRET}} -var TWITTER_CONSUMER_API_KEY=${{secrets.TWITTER_CONSUMER_API_KEY}} -var TWITTER_CONSUMER_API_SECRET=${{secrets.TWITTER_CONSUMER_API_SECRET}}
+      - name: Terraform Init
+        id: init
+        run: terraform init
 
-      # - id: apply
-      #   run: terraform apply -auto-approve -var AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} -var AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} -var TWITTER_ACCESS_TOKEN=${{secrets.TWITTER_ACCESS_TOKEN}} -var TWITTER_ACCESS_TOKEN_SECRET=${{secrets.TWITTER_ACCESS_TOKEN_SECRET}} -var TWITTER_CONSUMER_API_KEY=${{secrets.TWITTER_CONSUMER_API_KEY}} -var TWITTER_CONSUMER_API_SECRET=${{secrets.TWITTER_CONSUMER_API_SECRET}}
-      
-      # - name: Commit and push terraform.tfstate
-      #   uses: EndBug/add-and-commit@v7.2.1
-      #   with:
-      #     add: 'terraform.tfstate'
-      #     author_name: GithubActions
-      #     message: 'Update terraform.tfstate'
-      #     push: true
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -var AWS_ACCESS_KEY=${{secrets.AWS_ACCESS_KEY}} -var AWS_SECRET_KEY=${{secrets.AWS_SECRET_KEY}} -var TWITTER_ACCESS_TOKEN=${{secrets.TWITTER_ACCESS_TOKEN}} -var TWITTER_ACCESS_TOKEN_SECRET=${{secrets.TWITTER_ACCESS_TOKEN_SECRET}} -var TWITTER_CONSUMER_API_KEY=${{secrets.TWITTER_CONSUMER_API_KEY}} -var TWITTER_CONSUMER_API_SECRET=${{secrets.TWITTER_CONSUMER_API_SECRET}} -no-color
+        continue-on-error: true
+
+      - uses: actions/github-script@0.9.0
+        with:
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outputs.stdout }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
+            
+            </details>
+            
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+              
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
 

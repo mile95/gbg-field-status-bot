@@ -35,34 +35,34 @@ variable "TWITTER_CONSUMER_API_SECRET" {
 }
 
 provider "aws" {
-    region = "eu-north-1"
-    access_key = var.AWS_ACCESS_KEY
-    secret_key = var.AWS_SECRET_KEY
+  region     = "eu-north-1"
+  access_key = var.AWS_ACCESS_KEY
+  secret_key = var.AWS_SECRET_KEY
 }
 
 resource "aws_lambda_function" "twitterbotTF" {
-    filename         = "lambda.zip"
-    function_name    = "twitterbotTF"
-    role             = "arn:aws:iam::753907798323:role/terra"
-    handler          = "lambda_function.lambda_handler"
-    source_code_hash = filebase64sha256("lambda.zip")
-    runtime          = "python3.8"
-    environment {
-        variables = {
-            ACCESS_TOKEN_SECRET = var.TWITTER_ACCESS_TOKEN_SECRET
-            ACCESS_TOKEN        = var.TWITTER_ACCESS_TOKEN
-            CONSUMER_API_KEY    = var.TWITTER_CONSUMER_API_KEY
-            CONSUMER_API_SECRET = var.TWITTER_CONSUMER_API_SECRET
-        }        
+  filename         = "lambda.zip"
+  function_name    = "twitterbotTF"
+  role             = "arn:aws:iam::753907798323:role/terra"
+  handler          = "lambda_function.lambda_handler"
+  source_code_hash = filebase64sha256("lambda.zip")
+  runtime          = "python3.8"
+  environment {
+    variables = {
+      ACCESS_TOKEN_SECRET = var.TWITTER_ACCESS_TOKEN_SECRET
+      ACCESS_TOKEN        = var.TWITTER_ACCESS_TOKEN
+      CONSUMER_API_KEY    = var.TWITTER_CONSUMER_API_KEY
+      CONSUMER_API_SECRET = var.TWITTER_CONSUMER_API_SECRET
     }
+  }
 }
 
 module "lambda-cloudwatch-trigger" {
-  source                        = "infrablocks/lambda-cloudwatch-events-trigger/aws"
-  region                        = "eu-north-1"
-  component                     = "twitterbotTF"
-  deployment_identifier         = "production"
-  lambda_arn                    = aws_lambda_function.twitterbotTF.arn
-  lambda_function_name          = "twitterbotTF"
-  lambda_schedule_expression    = "cron(0 8,10,14 ? * * *)"
+  source                     = "infrablocks/lambda-cloudwatch-events-trigger/aws"
+  region                     = "eu-north-1"
+  component                  = "twitterbotTF"
+  deployment_identifier      = "production"
+  lambda_arn                 = aws_lambda_function.twitterbotTF.arn
+  lambda_function_name       = "twitterbotTF"
+  lambda_schedule_expression = "cron(0 8,10,14 ? * * *)"
 }
