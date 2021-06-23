@@ -2,18 +2,16 @@
 
 https://twitter.com/gbgplanstatus
 
-- Twitter bot that tweets unavailable football pitches in the Gothenburg area.
+- Twitter bot that tweets unavailable football fields in the Gothenburg area.
 - Deployed as an AWS Lambda
 - Tweets updates daily at 10am, 12am and 3pm (GMT +2)
 
-## Deployment instructions
+## Deployment using Terraform and Github Actions
+This repo contains a POC/MVP for how to use IaC (Terraform) with Github Actions. In the `configuration.tf`, the required infrastructure is defined. The deployment workflow looks like this: 
 
-1. Create a zip file with the `lambda_handler.py` and all the dependencies.
+1. For a new change, create a `PR` to `main`. This will trigger the `.github/workflows/plan.yml`, which mainly runs `terraform plan`. The plan is shown as a comment on the `PR` and it becomes straightforward to see the infrastructure changes that a merge of this PR creates.
+2. When the `PR` merged, the `.github/workflows/deploy.yml` will be triggered. This workflow mainly runs `terraform apply` which executes the plan of infrastructure changes. This workflow also checks in the `terraform.tfstate` file so that the state stays up-to-date.
 
-```bash
-zip -r9 lambda.zip * -x "bin/*" requirements.txt setup.cfg
-``` 
-2. Create an AWS lambda of using the `lambda.zip` and then use `CloudWatcher` for creating scheduled triggers.
 
 ## Run it locally
 
