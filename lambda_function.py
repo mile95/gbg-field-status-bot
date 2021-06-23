@@ -57,7 +57,7 @@ def tweet_statuses(closed_fields):
     )
     tweet_text = f"Uppdatering: {time} \n\n"
     if not closed_fields:
-        tweet_text += "Alla planer är spelbara! ✅"
+        tweet_text += "Alla planer är spelbara. ✅"
     else:
         for field in closed_fields:
             tweet_text += f"{field} ❌ \n"
