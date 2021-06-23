@@ -40,9 +40,9 @@ provider "aws" {
   secret_key = var.AWS_SECRET_KEY
 }
 
-resource "aws_lambda_function" "twitterbotTF" {
+resource "aws_lambda_function" "TwitterBot" {
   filename         = "lambda.zip"
-  function_name    = "twitterbotTF"
+  function_name    = "TwitterBot"
   role             = "arn:aws:iam::753907798323:role/terra"
   handler          = "lambda_function.lambda_handler"
   source_code_hash = filebase64sha256("lambda.zip")
@@ -60,9 +60,9 @@ resource "aws_lambda_function" "twitterbotTF" {
 module "lambda-cloudwatch-trigger" {
   source                     = "infrablocks/lambda-cloudwatch-events-trigger/aws"
   region                     = "eu-north-1"
-  component                  = "twitterbotTF"
+  component                  = "TwitterBot"
   deployment_identifier      = "production"
-  lambda_arn                 = aws_lambda_function.twitterbotTF.arn
-  lambda_function_name       = "twitterbotTF"
-  lambda_schedule_expression = "cron(0 8,10 ? * * *)"
+  lambda_arn                 = aws_lambda_function.TwitterBot.arn
+  lambda_function_name       = "TwitterBot"
+  lambda_schedule_expression = "cron(0 8,10,13 ? * * *)"
 }
