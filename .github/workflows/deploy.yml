@@ -32,8 +32,6 @@ jobs:
           backend_config: |
             access_key="${{ secrets.AWS_ACCESS_KEY }}"
             secret_key="${{ secrets.AWS_SECRET_KEY }}"
-            bucket = "fmtfstatebucket"
-            key    = "tfstate"
-            region = "eu-north-1"
+
 
 
