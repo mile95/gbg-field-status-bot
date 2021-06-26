@@ -16,8 +16,10 @@ jobs:
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
 
-      - name: Terraform Init
+      - name: Setup Terraform CLI
         uses: hashicorp/setup-terraform@v1
+        
+        name: Run Terraform Init
         run: terraform init -backend-config="access_key=${{secrets.AWS_ACCESS_KEY}}" -backend-config="secret_key=${{secrets.AWS_SECRET_KEY}}"
 
       - name: terraform apply
