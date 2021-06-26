@@ -40,6 +40,14 @@ provider "aws" {
   secret_key = var.AWS_SECRET_KEY
 }
 
+terraform {
+  backend "s3" {
+    bucket = "fmtfstatebucket"
+    key    = "tfstate"
+    region = "eu-north-1"
+  }
+}
+
 resource "aws_lambda_function" "TwitterBot" {
   filename         = "lambda.zip"
   function_name    = "TwitterBot"
