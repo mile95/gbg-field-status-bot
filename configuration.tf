@@ -41,12 +41,15 @@ provider "aws" {
 }
 
 terraform {
-  backend "s3" {
-    bucket = "mystatebucket"
-    key    = "state"
-    region = "eu-north-1"
-    access_key = var.AWS_ACCESS_KEY
-    secret_key = var.AWS_SECRET_KEY
+  backend "s3" {}
+}
+
+data "terraform_remote_state" "state" {
+  backend = "s3"
+  config {
+    bucket     = "tfstatebucket"
+    region     = "eu-north-1"
+    key        = "tfstate"
   }
 }
 
