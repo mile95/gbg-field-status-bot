@@ -41,15 +41,10 @@ provider "aws" {
 }
 
 terraform {
-  backend "s3" {}
-}
-
-data "terraform_remote_state" "state" {
-  backend = "s3"
-  config {
-    bucket     = "tfstatebucket"
-    region     = "eu-north-1"
-    key        = "tfstate"
+  backend "s3" {
+    bucket = "tfstatebucket"
+    key    = "tfstate"
+    region = "eu-north-1"
   }
 }
 
