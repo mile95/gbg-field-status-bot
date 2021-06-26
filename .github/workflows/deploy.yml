@@ -16,6 +16,10 @@ jobs:
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
 
+      - name: Terraform Init
+        uses: hashicorp/setup-terraform@v1
+        run: terraform init -backend-config="access_key=${{secrets.AWS_ACCESS_KEY}}" -backend-config="secret_key=${{secrets.AWS_SECRET_KEY}}"
+
       - name: terraform apply
         uses: dflook/terraform-apply@v1
         with:
@@ -29,9 +33,6 @@ jobs:
             TWITTER_ACCESS_TOKEN_SECRET="${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}"
             TWITTER_CONSUMER_API_KEY="${{secrets.TWITTER_CONSUMER_API_KEY}}"
             TWITTER_CONSUMER_API_SECRET="${{secrets.TWITTER_CONSUMER_API_SECRET}}"
-          backend_config: |
-            access_key="${{ secrets.AWS_ACCESS_KEY }}"
-            secret_key="${{ secrets.AWS_SECRET_KEY }}"
 
 
 
