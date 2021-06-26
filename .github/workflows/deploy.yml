@@ -30,8 +30,11 @@ jobs:
             TWITTER_CONSUMER_API_KEY="${{secrets.TWITTER_CONSUMER_API_KEY}}"
             TWITTER_CONSUMER_API_SECRET="${{secrets.TWITTER_CONSUMER_API_SECRET}}"
           backend_config: |
-            access_key="${{secrets.AWS_ACCESS_KEY}}"
-            secret_key="${{secrets.AWS_SECRET_KEY}}"
+            access_key="${{ secrets.AWS_ACCESS_KEY }}"
+            secret_key="${{ secrets.AWS_SECRET_KEY }}"
+            bucket = "fmtfstatebucket"
+            key    = "tfstate"
+            region = "eu-north-1"
       
       - name: Commit and push terraform.tfstate
         uses: EndBug/add-and-commit@v7.2.1
