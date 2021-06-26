@@ -35,12 +35,5 @@ jobs:
             bucket = "fmtfstatebucket"
             key    = "tfstate"
             region = "eu-north-1"
-      
-      - name: Commit and push terraform.tfstate
-        uses: EndBug/add-and-commit@v7.2.1
-        with:
-          add: 'terraform.tfstate'
-          author_name: GithubActions
-          message: 'Update terraform.tfstate'
-          push: true
+
 
