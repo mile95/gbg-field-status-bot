@@ -44,19 +44,10 @@ jobs:
         uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
         env:
-          format_out: ${{ steps.fmt.outputs.stdout }}
-          format_err: ${{ steps.fmt.outputs.stderr }}
-          init_out: ${{ steps.init.outputs.stdout }}
-          init_err: ${{ steps.init.outputs.stderr }}
-          validate_out: ${{ steps.validate.outputs.stdout }}
-          validate_err: ${{ steps.validate.outputs.stderr }}
           plan: "${{ steps.plan.outputs.stdout }}"
         with:
           script: |
             const CODE_BLOCK = '```';
-            const fmt_result = '${{ steps.fmt.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
-            const init_result = '${{ steps.init.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
-            const validate_result = '${{ steps.validate.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
             const plan_result = '${{ steps.plan.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
 
             const output = `
@@ -66,9 +57,7 @@ jobs:
             ${ CODE_BLOCK }terraform
             ${ process.env.plan }
             ${ CODE_BLOCK }
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            </details>`;
 
             github.issues.createComment({
               issue_number: context.issue.number,
