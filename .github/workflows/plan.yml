@@ -60,51 +60,6 @@ jobs:
             const plan_result = '${{ steps.plan.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
 
             const output = `
-            ### ${ fmt_result } Terraform Format and Style 🎨
-            <details><summary>Logs</summary>
-            Output
-
-            ${ CODE_BLOCK }diff
-            ${ process.env.format_out }
-            ${ CODE_BLOCK }
-
-            Errors
-
-            ${ CODE_BLOCK }
-            ${ process.env.format_err }
-            ${ CODE_BLOCK }
-            </details> <!-- End Format Logs -->
-
-            ### ${ init_result } Terraform Initialization ⚙️
-            <details><summary>Logs</summary>
-            Output
-
-            ${ CODE_BLOCK }
-            ${ process.env.init_out }
-            ${ CODE_BLOCK }
-
-            Errors
-
-            ${ CODE_BLOCK }
-            ${ process.env.init_err }
-            ${ CODE_BLOCK }
-            </details> <!-- End Init Logs -->
-
-            ### ${ validate_result } Terraform Validation 🤖
-            <details><summary>Logs</summary>
-            Output
-
-            ${ CODE_BLOCK }
-            ${ process.env.validate_out }
-            ${ CODE_BLOCK }
-
-            Errors
-
-            ${ CODE_BLOCK }
-            ${ process.env.validate_err }
-            ${ CODE_BLOCK }
-            </details> <!-- End Validate Logs -->
-
             ### ${ plan_result } Terraform Plan 📖
             <details><summary>Logs</summary>
 
