@@ -28,10 +28,6 @@ jobs:
       - name: 
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          message: |
-          `
-          \`\`\`\n
-          ${{ steps.plan.outcome }}
-          \`\`\`
-          `
+          message: ${{ steps.plan.outcome }}
+          
 
