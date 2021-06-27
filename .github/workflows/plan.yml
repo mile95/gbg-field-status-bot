@@ -15,6 +15,11 @@ jobs:
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 0.14.6
+
       - name: Terraform Fmt
         id: fmt
         run: terraform fmt -check -diff
