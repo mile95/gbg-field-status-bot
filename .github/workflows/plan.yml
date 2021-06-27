@@ -29,5 +29,9 @@ jobs:
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           message: |
-            ${{join(steps.plan.outputs.*, '\n')}}
+          `
+          \`\`\`\n
+          ${{ steps.plan.outcome }}
+          \`\`\`
+          `
 
