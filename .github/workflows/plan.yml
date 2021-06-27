@@ -28,6 +28,6 @@ jobs:
       - name: 
         uses: marocchino/sticky-pull-request-comment@v2
         with:
-          message: ${{join(steps.run_tests.outputs.*, '\n')}}
+          message: ${{join(steps.plan.outputs.*, '\n')}}
           
 
