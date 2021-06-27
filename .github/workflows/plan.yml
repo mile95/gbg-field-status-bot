@@ -3,30 +3,71 @@ name: Create terraform plan
 on: [pull_request]
 
 jobs:
-  plan:
+  Plan-Lambda-Function:
     runs-on: ubuntu-latest
-    name: Create a plan for an example terraform configuration
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Checkout
+      - name: Checkout repository content
         uses: actions/checkout@v2
-
+      
       - name: Create lambda.zip
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
 
-      - name: terraform plan
-        uses: dflook/terraform-plan@v1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          path: .
-          label: Twitter Bot
-          variables: |
-            AWS_ACCESS_KEY="${{secrets.AWS_ACCESS_KEY}}"
-            AWS_SECRET_KEY="${{secrets.AWS_SECRET_KEY}}"
-            TWITTER_ACCESS_TOKEN="${{secrets.TWITTER_ACCESS_TOKEN}}"
-            TWITTER_ACCESS_TOKEN_SECRET="${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}"
-            TWITTER_CONSUMER_API_KEY="${{secrets.TWITTER_CONSUMER_API_KEY}}"
-            TWITTER_CONSUMER_API_SECRET="${{secrets.TWITTER_CONSUMER_API_SECRET}}"
+          terraform_version: 0.14.6
+
+      - name: Terraform Fmt
+        id: fmt
+        run: terraform fmt -check -diff
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="access_key=${{secrets.AWS_ACCESS_KEY}}" -backend-config="secret_key=${{secrets.AWS_SECRET_KEY}}"
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -var AWS_ACCESS_KEY="${{secrets.AWS_ACCESS_KEY}}" -var AWS_SECRET_KEY="${{secrets.AWS_SECRET_KEY}}" -var TWITTER_ACCESS_TOKEN="${{secrets.TWITTER_ACCESS_TOKEN}}" -var TWITTER_ACCESS_TOKEN_SECRET="${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}" -var TWITTER_CONSUMER_API_KEY="${{secrets.TWITTER_CONSUMER_API_KEY}}" -var TWITTER_CONSUMER_API_SECRET="${{secrets.TWITTER_CONSUMER_API_SECRET}}"
+        continue-on-error: true
+
+      - name: Comment on PR
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          plan: "${{ steps.plan.outputs.stdout }}"
+        with:
+          script: |
+            const CODE_BLOCK = '```';
+            const plan_result = '${{ steps.plan.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
+
+            const output = `
+            ### ${ plan_result } Terraform Plan 📖
+            <details><summary>Logs</summary>
+
+            ${ CODE_BLOCK }terraform
+            ${ process.env.plan }
+            ${ CODE_BLOCK }
+            </details>`;
+
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+
+
+
+          
+
