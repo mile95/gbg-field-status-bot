@@ -15,17 +15,94 @@ jobs:
           pip install -r requirements.txt -t .
           zip -r lambda.zip * -x "bin/*" requirements.txt setup.cfg
 
-      - name: Setup Terraform CLI
-        uses: hashicorp/setup-terraform@v1
-        
-      - name: Run Terraform Init
-        run: terraform init -backend-config="access_key=${{secrets.AWS_ACCESS_KEY}}" -backend-config="secret_key=${{secrets.AWS_SECRET_KEY}}"
+      - name: Terraform Fmt
+        id: fmt
+        run: terraform fmt -check -diff
+        continue-on-error: true
 
-      - name: Run Terraform Plan
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend-config="access_key=${{secrets.AWS_ACCESS_KEY}}" -backend-config="secret_key=${{secrets.AWS_SECRET_KEY}}"
+        continue-on-error: true
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+        continue-on-error: true
+
+      - name: Terraform Plan
+        id: plan
         run: terraform plan -no-color -out=out.txt -var AWS_ACCESS_KEY="${{secrets.AWS_ACCESS_KEY}}" -var AWS_SECRET_KEY="${{secrets.AWS_SECRET_KEY}}" -var TWITTER_ACCESS_TOKEN="${{secrets.TWITTER_ACCESS_TOKEN}}" -var TWITTER_ACCESS_TOKEN_SECRET="${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}" -var TWITTER_CONSUMER_API_KEY="${{secrets.TWITTER_CONSUMER_API_KEY}}" -var TWITTER_CONSUMER_API_SECRET="${{secrets.TWITTER_CONSUMER_API_SECRET}}"
-      
-      - name: Read Terraform Plan File
-        run: cat out.txt
-        
+        continue-on-error: true
+
+      - name: Comment on PR
+        uses: actions/github-script@0.9.0
+        if: github.event_name == 'pull_request'
+        env:
+          format_out: ${{ steps.fmt.outputs.stdout }}
+          format_err: ${{ steps.fmt.outputs.stderr }}
+          init_out: ${{ steps.init.outputs.stdout }}
+          init_err: ${{ steps.init.outputs.stderr }}
+          validate_out: ${{ steps.validate.outputs.stdout }}
+          validate_err: ${{ steps.validate.outputs.stderr }}
+          plan: "${{ steps.plan.outputs.stdout }}"
+        with:
+          script: |
+            const CODE_BLOCK = '```';
+            const fmt_result = '${{ steps.fmt.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
+            const init_result = '${{ steps.init.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
+            const validate_result = '${{ steps.validate.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
+            const plan_result = '${{ steps.plan.outcome }}' === 'failure' ? ':x:' : ':heavy_check_mark:';
+            const output = `
+            ### ${ fmt_result } Terraform Format and Style 🎨
+            <details><summary>Logs</summary>
+            Output
+            ${ CODE_BLOCK }diff
+            ${ process.env.format_out }
+            ${ CODE_BLOCK }
+            Errors
+            ${ CODE_BLOCK }
+            ${ process.env.format_err }
+            ${ CODE_BLOCK }
+            </details> <!-- End Format Logs -->
+            ### ${ init_result } Terraform Initialization ⚙️
+            <details><summary>Logs</summary>
+            Output
+            ${ CODE_BLOCK }
+            ${ process.env.init_out }
+            ${ CODE_BLOCK }
+            Errors
+            ${ CODE_BLOCK }
+            ${ process.env.init_err }
+            ${ CODE_BLOCK }
+            </details> <!-- End Init Logs -->
+            ### ${ validate_result } Terraform Validation 🤖
+            <details><summary>Logs</summary>
+            Output
+            ${ CODE_BLOCK }
+            ${ process.env.validate_out }
+            ${ CODE_BLOCK }
+            Errors
+            ${ CODE_BLOCK }
+            ${ process.env.validate_err }
+            ${ CODE_BLOCK }
+            </details> <!-- End Validate Logs -->
+            ### ${ plan_result } Terraform Plan 📖
+            <details><summary>Logs</summary>
+            ${ CODE_BLOCK }terraform
+            ${ process.env.plan }
+            ${ CODE_BLOCK }
+            </details>
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+
+
+
           
 
