@@ -79,8 +79,7 @@ def tweet_statuses(closed_fields):
         if i == 0:
             prev_tweet = API.update_status(tweet)
         else:
-            time.sleep(2)
-            API.update_status(status=tweet, in_reply_to_status_id = prev_tweet.id)
+            prev_tweet = API.update_status(status=tweet, in_reply_to_status_id = prev_tweet.id)
         
         
 
