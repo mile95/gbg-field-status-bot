@@ -9,6 +9,7 @@ import re
 import datetime
 import json
 from os import environ
+import time
 
 # Twitter authentication
 ACCESS_TOKEN_SECRET = environ["ACCESS_TOKEN_SECRET"]
@@ -53,12 +54,12 @@ def collect_statuses_from_webpage() -> dict:
 
 
 def tweet_statuses(closed_fields):
-    time = (datetime.datetime.utcnow() + datetime.timedelta(hours=2)).strftime(
+    time_date = (datetime.datetime.utcnow() + datetime.timedelta(hours=2)).strftime(
         "%Y-%m-%d %H:%M"
     )
 
     if not closed_fields:
-        API.update_status("Uppdatering: {time} \n\n Alla planer är spelbara. ✅")
+        API.update_status("Uppdatering: {time_date} \n\n Alla planer är spelbara. ✅")
         return
 
     n = 3
@@ -67,14 +68,14 @@ def tweet_statuses(closed_fields):
     for i, data in enumerate(tweet_data):
         tweet_text = ""
         if i == 0:
-            tweet_text += f"Uppdatering: {time} \n\n"
+            tweet_text += f"Uppdatering: {time_date} \n\n"
         for field in data:
             tweet_text += f"{field} ❌ \n"
         tweet_text += f"\n {i + 1}/{len(tweet_data)}"
         tweets.append(tweet_text)
 
     prev_tweet = ""
-    for i, tweet in enumerate(tweet_data):
+    for i, tweet in enumerate(tweets):
         if i == 0:
             prev_tweet = API.update_status(tweet)
         else:
