@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from time import clock_getres
 from typing import List
 import tweepy
 from bs4 import BeautifulSoup
@@ -55,13 +56,32 @@ def tweet_statuses(closed_fields):
     time = (datetime.datetime.utcnow() + datetime.timedelta(hours=2)).strftime(
         "%Y-%m-%d %H:%M"
     )
-    tweet_text = f"Uppdatering: {time} \n\n"
+
     if not closed_fields:
-        tweet_text += "Alla planer är spelbara. ✅"
-    else:
-        for field in closed_fields:
+        API.update_status("Uppdatering: {time} \n\n Alla planer är spelbara. ✅")
+        return
+
+    n = 3
+    tweet_data = [closed_fields[i:i + n] for i in range(0, len(closed_fields), n)]
+    tweets = []
+    for i, data in enumerate(tweet_data):
+        tweet_text = ""
+        if i == 0:
+            tweet_text += f"Uppdatering: {time} \n\n"
+        for field in data:
             tweet_text += f"{field} ❌ \n"
-    API.update_status(tweet_text)
+        tweet_text += f"\n {i + 1}/{len(tweet_data)}"
+        tweets.append(tweet_text)
+
+    prev_tweet = ""
+    for i, tweet in enumerate(tweet_data):
+        if i == 0:
+            prev_tweet = API.update_status(tweet)
+        else:
+            time.sleep(2)
+            API.update_status(status=tweet, in_reply_to_status_id = prev_tweet.id)
+        
+        
 
 
 def lambda_handler(event, context):
