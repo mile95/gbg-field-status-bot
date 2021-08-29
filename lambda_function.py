@@ -59,7 +59,7 @@ def tweet_statuses(closed_fields):
     )
 
     if not closed_fields:
-        API.update_status("Uppdatering: {time_date} \n\n Alla planer är spelbara. ✅")
+        API.update_status(f"Uppdatering: {time_date} \n\n Alla planer är spelbara. ✅")
         return
 
     n = 3
