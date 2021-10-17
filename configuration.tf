@@ -72,5 +72,4 @@ module "lambda-cloudwatch-trigger" {
   deployment_identifier      = "production"
   lambda_arn                 = aws_lambda_function.TwitterBot.arn
   lambda_function_name       = "TwitterBot"
-  lambda_schedule_expression = "cron(0 8,10,13 ? * * *)"
 }
