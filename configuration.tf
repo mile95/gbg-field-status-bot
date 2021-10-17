@@ -64,12 +64,3 @@ resource "aws_lambda_function" "TwitterBot" {
     }
   }
 }
-
-module "lambda-cloudwatch-trigger" {
-  source                     = "infrablocks/lambda-cloudwatch-events-trigger/aws"
-  region                     = "eu-north-1"
-  component                  = "TwitterBot"
-  deployment_identifier      = "production"
-  lambda_arn                 = aws_lambda_function.TwitterBot.arn
-  lambda_function_name       = "TwitterBot"
-}
